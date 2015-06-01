@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,6 +27,8 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
+            Thread t = new Thread(ShareManager.InitializeShare);
+            t.Start();
             hook = new Hooker();
             hook.Win = this;
             //s = new StubServer();

@@ -117,6 +117,27 @@ namespace Client
                // BackgroundWorker bw = (BackgroundWorker) sender;
                eventArgs.Result = _connection.TcpConnectAndLogin(Username, Domain, Password);
 
+            if ((bool) eventArgs.Result)
+            {
+                var netResource = new NetResource()
+                {
+                    Scope = ResourceScope.GlobalNetwork,
+                    ResourceType = ResourceType.Disk,
+                    DisplayType = ResourceDisplaytype.Share,
+                    RemoteName = "\\\\" + Ip + "\\C"
+                };
+
+                var result = WNetAddConnection2(
+                    netResource,
+                    Password,
+                    Username,
+                    0x00000004 | 0x00000008);
+
+                if (result != 0)
+                {
+                    Console.WriteLine("Result not zero: " + result);
+                }
+            }
         }
 
         private void ConnectionCompleted(object sender, RunWorkerCompletedEventArgs eventArgs)
@@ -127,25 +148,7 @@ namespace Client
                 Window.SetServer(this);
 
                 //TODO trayicon notification
-
-                var netResource = new NetResource()
-                {
-                    Scope = ResourceScope.GlobalNetwork,
-                    ResourceType = ResourceType.Disk,
-                    DisplayType = ResourceDisplaytype.Share,
-                    RemoteName = "\\\\"+Ip+"\\C"
-                };
-
-                var result = WNetAddConnection2(
-                netResource,
-                Password,
-                Username,
-                0x00000004 | 0x00000008);
-
-                if (result != 0)
-                {
-                    Console.WriteLine("Result not zero: "+result);
-                }
+               
 
             }
             else
@@ -243,10 +246,11 @@ namespace Client
                         Console.WriteLine(format);
                         dataObj.SetData(format, data[i]);
                     }
-                    Clipboard.SetDataObject(dataObj);
-                    if (Clipboard.ContainsFileDropList())
+
+                    if (dataObj.ContainsFileDropList())
                     {
-                        StringCollection files = Clipboard.GetFileDropList();
+                        StringCollection files = dataObj.GetFileDropList();
+                        dataObj = new DataObject();
                         StringCollection adjusted = new StringCollection();
                         foreach (string f in files)
                         {
@@ -261,8 +265,10 @@ namespace Client
                                 adjusted.Add(f);
                             }
                         }
-                        Clipboard.SetFileDropList(adjusted);
+                        dataObj.SetFileDropList(adjusted);
                     }
+                    Clipboard.SetDataObject(dataObj);
+                   
                 }
             }
         }
