@@ -25,9 +25,7 @@ namespace Client
         public string Username { get; set; }
         public string Domain { get; set; }
         public string Password { get; set; }
-
-        private bool _connected = false;
-        public bool Connected { get{return _connected;} }
+        public bool Connected { get; set; }
 
         public MainWindow Window { get; set; }
         
@@ -94,7 +92,7 @@ namespace Client
             Username = username;
             Domain = domain;
             Password = password;
-            _connection = new Connection();
+            _connection = new Connection(Ip, Port);
             Window = window;
         }
 
@@ -119,24 +117,30 @@ namespace Client
 
             if ((bool) eventArgs.Result)
             {
-                var netResource = new NetResource()
+                Action act = new Action(() =>
                 {
-                    Scope = ResourceScope.GlobalNetwork,
-                    ResourceType = ResourceType.Disk,
-                    DisplayType = ResourceDisplaytype.Share,
-                    RemoteName = "\\\\" + Ip + "\\C"
-                };
+                    var netResource = new NetResource()
+                    {
+                        Scope = ResourceScope.GlobalNetwork,
+                        ResourceType = ResourceType.Disk,
+                        DisplayType = ResourceDisplaytype.Share,
+                        RemoteName = "\\\\" + Ip + "\\C"
+                    };
 
-                var result = WNetAddConnection2(
-                    netResource,
-                    Password,
-                    Username,
-                    0x00000004 | 0x00000008);
+                    var result = WNetAddConnection2(
+                        netResource,
+                        Password,
+                        Username,
+                        0x00000004 | 0x00000008 | 0x00000010 | 0x1000);
 
-                if (result != 0)
-                {
-                    Console.WriteLine("Result not zero: " + result);
-                }
+                    if (result != 0)
+                    {
+                        Console.WriteLine("Result not zero: " + result);
+                    }
+                });
+               Thread t = new Thread(() => act());
+               t.Start();
+
             }
         }
 
@@ -144,8 +148,8 @@ namespace Client
         {
             if (!eventArgs.Cancelled && eventArgs.Error == null)
             {
-                _connected = (bool)eventArgs.Result;
-                Window.SetServer(this);
+                Connected = (bool)eventArgs.Result;
+              //  Window.SetServer(this);
 
                 //TODO trayicon notification
                
@@ -154,7 +158,7 @@ namespace Client
             else
             {
                 Console.WriteLine(eventArgs.Error.Message);
-                _connected = false;
+                Connected = false;
             }
         
         

@@ -22,9 +22,9 @@ namespace Client
         private ECDiffieHellmanCng _exch;
         private byte[] _publicKey;
 
-        public Connection()
+        public Connection(string ip, int port)
         {
-            _ip = new IPEndPoint(IPAddress.Parse("192.168.168.132"), 3000);
+            _ip = new IPEndPoint(IPAddress.Parse(ip), port);
             _udpClient = new UdpClient();
             _tcpClient = new TcpClient();
             _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
@@ -82,6 +82,7 @@ namespace Client
 
         public bool TcpConnectAndLogin(string username, string domain, string password)
         {
+                //TODO gestire SocketException
                 _tcpClient.Connect(_ip);
                 _tcpClient.GetStream().Write(_publicKey,0,_publicKey.Length);
                 byte[] serverPublicKey = new byte[72];

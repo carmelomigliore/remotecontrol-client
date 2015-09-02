@@ -148,25 +148,61 @@ namespace Client
                 m.x = (int)((hookStruct.pt.x / width) * 65535);
                 m.y = (int)((hookStruct.pt.y / height) * 65535);
                 m.mouseData = (short)(hookStruct.mouseData >> 16);
-                if (hookStruct.pt.x >= width && !_capturing && RightServer!=null)
+                //Console.WriteLine("cribba");
+                if ((hookStruct.pt.x >= width || hookStruct.pt.x <= 0) && !_capturing && ((RightServer != null && RightServer.Connected == true) || (LeftServer != null && LeftServer.Connected == true)))
                 {
-                    _currentServer = RightServer;
-                    _capturing = true;
-                    _currentServer.SendLocalClipboard();
-                    mouse_event(1 | 0x8000, (uint) ((2/width)*65535), (uint) m.y,0,UIntPtr.Zero);
-                  //  m.x = (int) ((2/width)*65535);
-                    Win.Background =  new BrushConverter().ConvertFrom("#01000000") as Brush;
-                    Win.Topmost = true;
-                    Win.Activate();
-                    return (IntPtr) 1;
+                    
+                    if (hookStruct.pt.x >= width && RightServer != null)
+                    {
+                        Console.WriteLine("bubba");
+                        _currentServer = RightServer;
+                        mouse_event(1 | 0x8000, (uint)((8 / width) * 65535), (uint)m.y, 0, UIntPtr.Zero);
+                        _capturing = true;
+                        _currentServer.SendLocalClipboard();
+
+                        //  m.x = (int) ((2/width)*65535);
+                        Win.Background = new BrushConverter().ConvertFrom("#01000000") as Brush;
+                        Win.Topmost = true;
+                        Win.Activate();
+                        return (IntPtr)1;
+                    }
+                    else if (hookStruct.pt.x <= 0 && LeftServer != null)
+                    {
+                        Console.WriteLine("maledetti");
+                        _currentServer = LeftServer;
+                        mouse_event(1 | 0x8000, 65520, (uint)m.y, 0, UIntPtr.Zero);
+                        _capturing = true;
+                        _currentServer.SendLocalClipboard();
+
+                        //  m.x = (int) ((2/width)*65535);
+                        Win.Background = new BrushConverter().ConvertFrom("#01000000") as Brush;
+                        Win.Topmost = true;
+                        Win.Activate();
+                        return (IntPtr)1;
+                    }
+
+                   // Console.WriteLine("temperini");
+                  
                 }
 
-                if (hookStruct.pt.x <= 0 && _capturing)
+                if (hookStruct.pt.x <= 0 && _capturing && _currentServer == RightServer)
                 {
+                    Console.WriteLine("monza");
                     _capturing = false;
                     mouse_event(1 | 0x8000, (uint) (((width - 4)/width)*65535), (uint)m.y, 0, UIntPtr.Zero);
                    // m.x = (int)(((width - 2) / width) * 65535);
                     Win.Background = new BrushConverter().ConvertFrom("#00000000") as Brush;
+                    Win.WindowState = WindowState.Maximized;
+                    _currentServer.GetRemoteClipboard();
+                    return (IntPtr)1;
+                }
+                else if (hookStruct.pt.x >= width && _capturing && _currentServer == LeftServer)
+                {
+                    _capturing = false;
+                    mouse_event(1 | 0x8000, (uint)((10 / width) * 65535), (uint)m.y, 0, UIntPtr.Zero);
+                    // m.x = (int)(((width - 2) / width) * 65535);
+                    Win.Background = new BrushConverter().ConvertFrom("#00000000") as Brush;
+                    Win.WindowState = WindowState.Maximized;
                     _currentServer.GetRemoteClipboard();
                     return (IntPtr)1;
                 }

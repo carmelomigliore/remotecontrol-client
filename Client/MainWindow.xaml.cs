@@ -23,7 +23,15 @@ namespace Client
     {
         private Hooker hook;
         private Server serv;
-       // private StubServer s;
+        public Server RightServer {
+            get { return hook.RightServer; }
+            set { hook.RightServer = value; } 
+        }
+        public Server LeftServer
+        {
+            get { return hook.LeftServer; }
+            set { hook.LeftServer = value; }
+        }
         public MainWindow()
         {
             InitializeComponent();
@@ -31,15 +39,18 @@ namespace Client
             t.Start();
             hook = new Hooker();
             hook.Win = this;
+            this.Height = System.Windows.SystemParameters.PrimaryScreenHeight;
+            this.Width = System.Windows.SystemParameters.PrimaryScreenWidth;
             //s = new StubServer();
-            serv = new Server("192.168.168.132",3000,"Administrator","WORKGROUP","admin",this);
-            serv.ConnectAndLogin();
+            //serv = new Server("192.168.168.133",3000,"Administrator","WORKGROUP","admin",this);
+            //serv.ConnectAndLogin();
+            //hook.SetHook();
+        }
+
+        public void SetHook()
+        {
             hook.SetHook();
         }
 
-        public void SetServer(Server connected)
-        {
-            hook.RightServer = connected;
-        }
     }
 }
