@@ -38,7 +38,7 @@ namespace Client
             if (CheckData())
             {
                 Server s = new Server(this.ip.Text, Int32.Parse(this.port.Text), this.user.Text, "WORKGROUP",
-                    this.password.Password, mainWindow);
+                    this.password.Password);
                 s.Nickname = this.nick.Text;
                 startWindow.List.Add(s);
                 this.Close();

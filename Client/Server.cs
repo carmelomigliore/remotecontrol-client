@@ -27,7 +27,7 @@ namespace Client
         public string Password { get; set; }
         public bool Connected { get; set; }
 
-        public MainWindow Window { get; set; }
+        public Progress Window { get; set; }
         
         private Connection _connection;
 
@@ -85,7 +85,7 @@ namespace Client
             Ndscontainer = 0x0b
         }
 
-        public Server(string ip, int port, string username, string domain, string password, MainWindow window)
+        public Server(string ip, int port, string username, string domain, string password)
         {
             Ip = ip;
             Port = port;
@@ -93,7 +93,6 @@ namespace Client
             Domain = domain;
             Password = password;
             _connection = new Connection(Ip, Port);
-            Window = window;
         }
 
         public void Send(bool keyboard, byte[] data)
@@ -150,7 +149,11 @@ namespace Client
             {
                 Connected = (bool)eventArgs.Result;
               //  Window.SetServer(this);
-
+               if(Connected)
+                    Window.ConnectionCompleted();
+               else
+                   Window.AuthFailed();
+                   
                 //TODO trayicon notification
                
 

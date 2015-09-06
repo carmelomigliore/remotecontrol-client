@@ -32,6 +32,8 @@ namespace Client
             get { return hook.LeftServer; }
             set { hook.LeftServer = value; }
         }
+
+
         public MainWindow()
         {
             InitializeComponent();

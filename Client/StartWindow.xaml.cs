@@ -26,6 +26,7 @@ namespace Client
         public ObservableCollection<Server> List { get; set; }
         public MainWindow mainWindow { get; set; }
         private System.Windows.Forms.NotifyIcon _trayIcon;
+        public Progress Prog { get; set; }
 
 
         private Point startPosition;
@@ -130,23 +131,29 @@ namespace Client
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             bool serverIsPresent = false;
-
+            Prog = new Progress();
             if (mainWindow.RightServer != null && !mainWindow.RightServer.Connected)
             {
+                mainWindow.RightServer.Window = Prog;
                 mainWindow.RightServer.ConnectAndLogin();
                 serverIsPresent = true;
             }
 
             if (mainWindow.LeftServer != null && !mainWindow.LeftServer.Connected)
             {
+                mainWindow.LeftServer.Window = Prog;
                 mainWindow.LeftServer.ConnectAndLogin();
                 serverIsPresent = true;
             }
             if (serverIsPresent)
             {
+               
+                Prog.Start = this;
+                Prog.Main = mainWindow;
                 mainWindow.SetHook();
                 this.Hide();
-                mainWindow.Show();
+                Prog.Show();
+                //mainWindow.Show();
             }
         }
     }

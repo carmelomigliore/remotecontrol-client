@@ -35,7 +35,7 @@ namespace Client
             _exch.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
             _exch.HashAlgorithm = CngAlgorithm.Sha256;
             _publicKey = _exch.PublicKey.ToByteArray();
-            _tcpClient.NoDelay = true;
+            _tcpClient.NoDelay = false;
         }
 
         public void SendClipboard(byte[] data)
@@ -82,12 +82,18 @@ namespace Client
 
         public bool TcpConnectAndLogin(string username, string domain, string password)
         {
-                //TODO gestire SocketException
+            //TODO gestire SocketException
+            try
+            {
+                Console.WriteLine("Mannaggia padre pio");
                 _tcpClient.Connect(_ip);
-                _tcpClient.GetStream().Write(_publicKey,0,_publicKey.Length);
+                _tcpClient.GetStream().Write(_publicKey, 0, _publicKey.Length);
+                Console.WriteLine("Mannaggia giovannipaolo");
                 byte[] serverPublicKey = new byte[72];
                 _tcpClient.GetStream().Read(serverPublicKey, 0, 72);
-                byte[] derivedKey = _exch.DeriveKeyMaterial(CngKey.Import(serverPublicKey, CngKeyBlobFormat.EccPublicBlob));
+                byte[] derivedKey =
+                    _exch.DeriveKeyMaterial(CngKey.Import(serverPublicKey, CngKeyBlobFormat.EccPublicBlob));
+                Console.WriteLine("Mannaggia sanpietro");
                 StreamWriter stream = new StreamWriter(_tcpClient.GetStream());
                 stream.WriteLine("0");
                 stream.Flush();
@@ -95,24 +101,49 @@ namespace Client
                 stream.Flush();
                 stream.WriteLine(domain);
                 stream.Flush();
+                Console.WriteLine("Mannaggia il cristo");
                 Aes aes = new AesCryptoServiceProvider();
                 aes.Key = derivedKey;
                 byte[] bytes = new byte[aes.BlockSize/8];
                 bytes.Initialize();
-                System.Buffer.BlockCopy(username.ToCharArray(), 0, bytes, 0, bytes.Length > username.Length * sizeof(char) ? username.Length * sizeof(char): bytes.Length);
+                System.Buffer.BlockCopy(username.ToCharArray(), 0, bytes, 0,
+                    bytes.Length > username.Length*sizeof (char) ? username.Length*sizeof (char) : bytes.Length);
                 aes.IV = bytes;
                 ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
                 MemoryStream ms = new MemoryStream(64);
                 CryptoStream csEncrypt = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
                 byte[] passArr = Encoding.UTF8.GetBytes(password);
-                csEncrypt.Write(passArr,0,passArr.Length);
-                csEncrypt.Close();
-                byte[] tosend = ms.ToArray();
+                Console.WriteLine("Dione");
                 
-                _tcpClient.GetStream().Write(tosend,0,tosend.Length);
-                byte [] auth = new byte[sizeof(bool)];
-                _tcpClient.GetStream().Read(auth, 0, sizeof (bool));
-                return BitConverter.ToBoolean(auth, 0);
+                Console.WriteLine("Masalone");
+                csEncrypt.Write(passArr, 0, passArr.Length);
+                csEncrypt.Close();
+                Console.WriteLine("Sistone " + passArr.Length);
+
+                byte[] tosend = ms.ToArray();
+                Console.WriteLine("Mannaggia geova");
+               // stream.WriteLine(tosend.Length);
+                //stream.Flush();
+                //csEncrypt.Position = 0;
+                string encpass = Convert.ToBase64String(tosend, 0, tosend.Length);
+                //_tcpClient.GetStream().Write(tosend, 0, tosend.Length);
+                stream.WriteLine(encpass); //TODO da controllare
+                stream.Flush();
+                //_tcpClient.GetStream().Flush();
+                Console.WriteLine("mipiaceporconare " + tosend.Length);
+                byte[] auth = new byte[sizeof (bool)];
+                _tcpClient.GetStream().Read(auth, 0, sizeof (bool)); //TODO IOException
+
+                bool madonna = BitConverter.ToBoolean(auth, 0);
+                Console.WriteLine("Mannaggia gesuzzo " + madonna);
+                return madonna;
+            }
+            catch (SocketException se)
+            {
+                MessageBox.Show("Connection failed");
+                return false;
+            }
+
         }
 
         public void Send(byte[] toSend, bool keyboard)
