@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -26,16 +27,19 @@ namespace Client
         public ObservableCollection<Server> List { get; set; }
         public MainWindow mainWindow { get; set; }
         private System.Windows.Forms.NotifyIcon _trayIcon;
-        public Progress Prog { get; set; }
+        public Server RightServer { get; set; }
+        public Server LeftServer { get; set; }
 
+        private bool _started = false;
 
+        public Hooker Hook { get; set; }
         private Point startPosition;
         public StartWindow()
         {
             InitializeComponent();
             List = new ObservableCollection<Server>();
             this.DataContext = this;
-            mainWindow = new MainWindow();
+             Hook = new Hooker();
             _trayIcon = new System.Windows.Forms.NotifyIcon();
             _trayIcon.Icon = new System.Drawing.Icon("Resources/Icon.ico");
             _trayIcon.Visible = true;
@@ -110,10 +114,12 @@ namespace Client
             if (e.Data.GetDataPresent("server"))
             {
                 Server server = e.Data.GetData("server") as Server;
-                mainWindow.RightServer = server;
+                RightServer = server;
+                RightServer.PropertyChanged += ConnectionHandler;
                 RightLabel.Content = server.Nickname;
             }
         }
+
 
         private void Rectangle_Left_Drop(object sender, DragEventArgs e)
         {
@@ -122,7 +128,7 @@ namespace Client
                 if (e.Data.GetDataPresent("server"))
                 {
                     Server server = e.Data.GetData("server") as Server;
-                    mainWindow.LeftServer = server;
+                    LeftServer = server;
                     LeftLabel.Content = server.Nickname;
                 }
             }
@@ -130,31 +136,119 @@ namespace Client
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            bool serverIsPresent = false;
-            Prog = new Progress();
-            if (mainWindow.RightServer != null && !mainWindow.RightServer.Connected)
+            if (!_started)
             {
-                mainWindow.RightServer.Window = Prog;
-                mainWindow.RightServer.ConnectAndLogin();
-                serverIsPresent = true;
-            }
+                mainWindow = new MainWindow();
+                mainWindow.Hook = Hook;
+                Hook.Win = mainWindow;
+                bool serverIsPresent = false;
+                if (RightServer != null && !RightServer.Connected)
+                {
+                    mainWindow.RightServer = RightServer;
+                    mainWindow.RightServer.Window = this;
+                    mainWindow.RightServer.ConnectAndLogin();
+                    serverIsPresent = true;
+                }
 
-            if (mainWindow.LeftServer != null && !mainWindow.LeftServer.Connected)
-            {
-                mainWindow.LeftServer.Window = Prog;
-                mainWindow.LeftServer.ConnectAndLogin();
-                serverIsPresent = true;
+                if (LeftServer != null && !LeftServer.Connected)
+                {
+                    mainWindow.LeftServer = LeftServer;
+                    mainWindow.LeftServer.Window = this;
+                    mainWindow.LeftServer.ConnectAndLogin();
+                    serverIsPresent = true;
+                }
+                if (serverIsPresent)
+                {
+                    mainWindow.SetHook();
+                    _started = true;
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    Start.Content = "Stop";
+                    // this.Hide();
+                    //Prog.Show();
+                    //mainWindow.Show();
+                }
             }
-            if (serverIsPresent)
+            else
             {
-               
-                Prog.Start = this;
-                Prog.Main = mainWindow;
-                mainWindow.SetHook();
-                this.Hide();
-                Prog.Show();
-                //mainWindow.Show();
+                if (RightServer != null)
+                {
+                    RightServer.Disconnect();
+                    Start.Content = "Start";
+                    _started = false;
+                    Mouse.OverrideCursor = Cursors.Arrow;
+                    Hook.UnHook();
+                }
+
+                if (LeftServer != null)
+                {
+                    LeftServer.Disconnect();
+                    Start.Content = "Start";
+                    _started = false;
+                    Mouse.OverrideCursor = Cursors.Arrow;
+                    Hook.UnHook();
+                }
             }
+        }
+
+        public void ConnectionHandler(object sender, PropertyChangedExtendedEventArgs<bool> args)
+        {
+            if (args.PropertyName == "connected")
+            {
+
+                if (sender == RightServer)
+                {
+                    if (args.NewValue)
+                    {
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            RightRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.LightGreen);
+                            this.Hide();
+                            mainWindow.Show();
+                            Mouse.OverrideCursor = Cursors.None;
+                        }));
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            RightRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.Black);
+                        }));
+                    }
+                }
+                else if (sender == LeftServer)
+                {
+                    if (args.NewValue)
+                    {
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            LeftRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.LightGreen);
+                            this.Hide();
+                            mainWindow.Show();
+                            Mouse.OverrideCursor = Cursors.None;
+                        }));
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            LeftRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.Black);
+                        }));
+                    }
+                }
+            }
+        }
+
+        public void AuthFailed()
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                MessageBox.Show("Authentication failed");
+                Hook.StopCapture();
+                mainWindow.Close();
+                this.Show();
+                Mouse.OverrideCursor = Cursors.Arrow;
+            }));
+            //this.Close();
         }
     }
 }

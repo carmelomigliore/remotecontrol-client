@@ -7,8 +7,8 @@
             <ColumnDefinition Width="116*"/>
             <ColumnDefinition Width="135*"/>
         </Grid.ColumnDefinitions>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="103,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="93" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Left_Drop"/>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="85,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="97" Grid.Column="1" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Right_Drop"/>
+        <Rectangle x:Name="LeftRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="103,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="93" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Left_Drop"/>
+        <Rectangle x:Name="RightRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="85,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="97" Grid.Column="1" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Right_Drop"/>
         <Image HorizontalAlignment="Left" Height="94" Margin="201,40,0,0" VerticalAlignment="Top" Width="99" Grid.ColumnSpan="2"/>
         <ListView x:Name="serverlist" ItemsSource="{Binding Path=List}" Margin="41,165,116,0" Grid.ColumnSpan="2" PreviewMouseLeftButtonDown="serverlist_PreviewMouseLeftButtonDown" PreviewMouseMove="serverlist_PreviewMouseMove">
             <ListView.View>
@@ -20,7 +20,7 @@
             </ListView.View>
         </ListView>
         <Button x:Name="Addserver" Content="Add Server" HorizontalAlignment="Left" Margin="176,195,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.154,0.9" Height="20" Click="Add_Click" Grid.Column="1"/>
-        <Button Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="176,245,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="Button_Click"/>
+        <Button x:Name="Start" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="176,245,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="Button_Click"/>
         <Label x:Name="LeftLabel" Content="" HorizontalAlignment="Left" Margin="129,67,0,0" VerticalAlignment="Top"/>
         <Label x:Name="RightLabel" Content="" Grid.Column="1" HorizontalAlignment="Left" Margin="116,67,0,0" VerticalAlignment="Top"/>
 

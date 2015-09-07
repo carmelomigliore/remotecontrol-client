@@ -26,7 +26,7 @@ namespace Client
         {
             _ip = new IPEndPoint(IPAddress.Parse(ip), port);
             _udpClient = new UdpClient();
-            _tcpClient = new TcpClient();
+            
             _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _udpClient.DontFragment = true;
             _udpClient.Connect(_ip);
@@ -35,19 +35,19 @@ namespace Client
             _exch.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
             _exch.HashAlgorithm = CngAlgorithm.Sha256;
             _publicKey = _exch.PublicKey.ToByteArray();
-            _tcpClient.NoDelay = false;
         }
 
-        public void SendClipboard(byte[] data)
+        public void SendClipboard(byte[] data) 
         {
             if (data != null)
             {
-                StreamWriter stream = new StreamWriter(_tcpClient.GetStream());
-                stream.WriteLine("2");
-                stream.Flush();
-                byte[] len = BitConverter.GetBytes(data.Length);
-                _tcpClient.GetStream().Write(len,0,len.Length);
-                _tcpClient.GetStream().Write(data,0,data.Length);
+                    StreamWriter stream = new StreamWriter(_tcpClient.GetStream());
+                    stream.WriteLine("2");
+                    stream.Flush();
+                    byte[] len = BitConverter.GetBytes(data.Length);
+                    _tcpClient.GetStream().Write(len, 0, len.Length);
+                    _tcpClient.GetStream().Write(data, 0, data.Length);
+                
             }
            
         }
@@ -85,6 +85,8 @@ namespace Client
             //TODO gestire SocketException
             try
             {
+                _tcpClient = new TcpClient();
+                _tcpClient.Client.ReceiveTimeout = 5000;
                 Console.WriteLine("Mannaggia padre pio");
                 _tcpClient.Connect(_ip);
                 _tcpClient.GetStream().Write(_publicKey, 0, _publicKey.Length);
@@ -140,7 +142,6 @@ namespace Client
             }
             catch (SocketException se)
             {
-                MessageBox.Show("Connection failed");
                 return false;
             }
 
@@ -160,6 +161,29 @@ namespace Client
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+            }
+        }
+
+        public void Disconnect()
+        {
+            try
+            {
+                if (_tcpClient != null && _udpClient != null)
+                {
+                    //_tcpClient.Client.Close();
+                    _tcpClient.GetStream().Dispose();
+                    _tcpClient.Close();
+                    _udpClient.Client.Close();
+                    _udpClient.Close();
+                    _tcpClient = null;
+                    _udpClient = null;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Mannaggia il gesuzzo "+e.Message + e.StackTrace);
+                _tcpClient = null;
+                _udpClient = null;
             }
         }
 

@@ -5,16 +5,18 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Client.Annotations;
 
 namespace Client
 {
-    public class Server
+    public class Server : INotifyPropertyChangedExtended<bool>
     {
         
         public string Ip { get; set; }
@@ -25,9 +27,21 @@ namespace Client
         public string Username { get; set; }
         public string Domain { get; set; }
         public string Password { get; set; }
-        public bool Connected { get; set; }
+        private bool _connected;
 
-        public Progress Window { get; set; }
+        public bool Connected
+        {
+            get { return _connected; }
+            set
+            {
+                bool old = _connected; 
+                _connected = value;
+                OnPropertyChanged(old, _connected, "connected");
+            }
+        }
+
+
+        public StartWindow Window { get; set; }
         
         private Connection _connection;
 
@@ -92,7 +106,7 @@ namespace Client
             Username = username;
             Domain = domain;
             Password = password;
-            _connection = new Connection(Ip, Port);
+           
         }
 
         public void Send(bool keyboard, byte[] data)
@@ -102,6 +116,7 @@ namespace Client
 
         public void ConnectAndLogin()
         {
+            _connection = new Connection(Ip, Port);
             BackgroundWorker bw = new BackgroundWorker();
             bw.DoWork += DoWorkConnect;
             bw.RunWorkerCompleted += ConnectionCompleted;
@@ -112,7 +127,14 @@ namespace Client
         {
            
                // BackgroundWorker bw = (BackgroundWorker) sender;
-               eventArgs.Result = _connection.TcpConnectAndLogin(Username, Domain, Password);
+            try
+            {
+                eventArgs.Result = _connection.TcpConnectAndLogin(Username, Domain, Password);
+            }
+            catch (Exception ioe)
+            {
+                eventArgs.Result = false;
+            }
 
             if ((bool) eventArgs.Result)
             {
@@ -149,9 +171,7 @@ namespace Client
             {
                 Connected = (bool)eventArgs.Result;
               //  Window.SetServer(this);
-               if(Connected)
-                    Window.ConnectionCompleted();
-               else
+               if(!Connected)
                    Window.AuthFailed();
                    
                 //TODO trayicon notification
@@ -222,7 +242,18 @@ namespace Client
 
         private void DoWorkSendLocalClipboard(object sender, DoWorkEventArgs eventArgs)
         {
-            _connection.SendClipboard((byte[])eventArgs.Argument);
+            try
+            {
+                _connection.SendClipboard((byte[]) eventArgs.Argument);
+            }
+            catch (Exception ioe)
+            {
+                Connected = false;
+                Window.Dispatcher.Invoke(new Action(() =>
+                {
+                    Window.AuthFailed();
+                }));
+            }
         }
 
         public void GetRemoteClipboard()
@@ -235,7 +266,18 @@ namespace Client
 
         private void DoWorkGetClipboard(object sender, DoWorkEventArgs eventArgs)
         {
-            eventArgs.Result = _connection.GetClipboard();
+            try
+            {
+                eventArgs.Result = _connection.GetClipboard();
+            }
+            catch (Exception ioe)
+            {
+                Connected = false;
+                Window.Dispatcher.Invoke(new Action(() =>
+                {
+                    Window.AuthFailed();
+                }));
+            }
         }
 
         private void ClipboardReceived(object sender, RunWorkerCompletedEventArgs eventArgs)
@@ -280,5 +322,22 @@ namespace Client
             }
         }
 
+        public event PropertyChangedExtendedEventHandler<bool> PropertyChanged; 
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged(bool oldValue, bool newValue, [CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedExtendedEventArgs<bool>(propertyName,oldValue,newValue));
+        }
+
+        public void Disconnect()
+        {
+            if (_connection != null)
+            {
+                _connection.Disconnect();
+            }
+            Connected = false;
+        }
     }
 }

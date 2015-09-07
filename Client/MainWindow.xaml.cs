@@ -21,16 +21,16 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Hooker hook;
+        public Hooker Hook { get; set; }
         private Server serv;
         public Server RightServer {
-            get { return hook.RightServer; }
-            set { hook.RightServer = value; } 
+            get { return Hook.RightServer; }
+            set { Hook.RightServer = value; } 
         }
         public Server LeftServer
         {
-            get { return hook.LeftServer; }
-            set { hook.LeftServer = value; }
+            get { return Hook.LeftServer; }
+            set { Hook.LeftServer = value; }
         }
 
 
@@ -39,8 +39,8 @@ namespace Client
             InitializeComponent();
             Thread t = new Thread(ShareManager.InitializeShare);
             t.Start();
-            hook = new Hooker();
-            hook.Win = this;
+           // Hook = new Hooker();
+           // Hook.Win = this;
             this.Height = System.Windows.SystemParameters.PrimaryScreenHeight;
             this.Width = System.Windows.SystemParameters.PrimaryScreenWidth;
             //s = new StubServer();
@@ -51,7 +51,7 @@ namespace Client
 
         public void SetHook()
         {
-            hook.SetHook();
+            Hook.SetHook();
         }
 
     }

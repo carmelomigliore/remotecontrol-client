@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace Client
 {
-    class Hooker
+   public class Hooker
     {
         public Server LeftServer { get; set; }
 
@@ -79,10 +79,10 @@ namespace Client
         private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
 
-        private IntPtr _hhook = IntPtr.Zero;
-        private LowLevelMouseProc _mproc;
-        private LowLevelKeyboardProc _proc;
-        private IntPtr _mhhook = IntPtr.Zero;
+        private  IntPtr _hhook = IntPtr.Zero;
+        private static LowLevelMouseProc _mproc;
+        private static  LowLevelKeyboardProc _proc;
+        private  IntPtr _mhhook = IntPtr.Zero;
         private Boolean _ctrlPressed;
         private Boolean _shiftPressed;
         private Boolean _winPressed;
@@ -119,8 +119,8 @@ namespace Client
 
         public void SetHook()
         {
-            _proc = KeybdHookProc;
-            _mproc = MouseHookProc;
+            _proc = new LowLevelKeyboardProc(KeybdHookProc);
+            _mproc = new LowLevelMouseProc(MouseHookProc);
             IntPtr hInstance = LoadLibrary("User32");
             _hhook = SetWindowsHookEx(WH_KEYBOARD_LL, _proc, hInstance, 0);
             _mhhook = SetWindowsHookEx(WH_MOUSE_LL, _mproc, hInstance, 0);
@@ -220,7 +220,14 @@ namespace Client
                         return (IntPtr)1;
                 }
             }
-                return CallNextHookEx(_mhhook, code, (int)wParam, lParam);
+            try
+            {
+                return CallNextHookEx(_mhhook, code, (int) wParam, lParam);
+            }
+            catch (Exception)
+            {
+                return (IntPtr)1;
+            }
         }
 
       
@@ -266,10 +273,21 @@ namespace Client
                 }
             }
 
+            try
+            {
                 return CallNextHookEx(_hhook, code, (int) wParam, lParam);
-
+            }
+            catch (Exception e)
+            {
+                return (IntPtr)1;
+            }
 
         }
+
+       public void StopCapture()
+       {
+           _capturing = false;
+       }
 
 
         private void CheckForModifiers(IntPtr wParam, KBDLLHOOKSTRUCT lParam)
