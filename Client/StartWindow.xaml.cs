@@ -47,6 +47,7 @@ namespace Client
             _trayIcon.DoubleClick += delegate(object sender, EventArgs args)
             {
                 this.Show();
+                this.Activate();
                 this.WindowState = WindowState.Normal;
             };
             _trayIcon.Click += delegate(object sender, EventArgs args)
@@ -118,6 +119,7 @@ namespace Client
                 RightServer = server;
                 RightServer.PropertyChanged += ConnectionHandler;
                 RightLabel.Content = server.Nickname;
+                Console.WriteLine("bastardo di cristino");
             }
         }
 
@@ -132,6 +134,7 @@ namespace Client
                     LeftServer = server;
                     LeftServer.PropertyChanged += ConnectionHandler;
                     LeftLabel.Content = server.Nickname;
+                    Console.WriteLine("Bastardo di erick toir");
                 }
             }
         }
@@ -229,7 +232,7 @@ namespace Client
                         Dispatcher.Invoke(new Action(() =>
                         {
                             RightRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.LightGreen);
-                            this.Hide();
+                          //  this.Hide();
                             mainWindow.Show();
                             Mouse.OverrideCursor = Cursors.None;
                         }));
@@ -251,7 +254,7 @@ namespace Client
                         Dispatcher.Invoke(new Action(() =>
                         {
                             LeftRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.LightGreen);
-                            this.Hide();
+                           // this.Hide();
                             mainWindow.Show();
                             Mouse.OverrideCursor = Cursors.None;
                         }));

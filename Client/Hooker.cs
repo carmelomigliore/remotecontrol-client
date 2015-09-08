@@ -152,7 +152,7 @@ namespace Client
                 if ((hookStruct.pt.x >= width || hookStruct.pt.x <= 0) && !_capturing && ((RightServer != null && RightServer.Connected == true) || (LeftServer != null && LeftServer.Connected == true)))
                 {
                     
-                    if (hookStruct.pt.x >= width && RightServer != null)
+                    if (hookStruct.pt.x >= width && RightServer != null && RightServer.Connected)
                     {
                         Console.WriteLine("bubba");
                         _currentServer = RightServer;
@@ -166,7 +166,7 @@ namespace Client
                         Win.Activate();
                         return (IntPtr)1;
                     }
-                    else if (hookStruct.pt.x <= 0 && LeftServer != null)
+                    else if (hookStruct.pt.x <= 0 && LeftServer != null && LeftServer.Connected)
                     {
                         Console.WriteLine("maledetti");
                         _currentServer = LeftServer;

@@ -1,16 +1,16 @@
 ﻿<Window x:Class="Client.StartWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="StartWindow" Height="341.957" Width="510.432" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
+        Title="StartWindow" Height="341.957" Width="510.432" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave" ResizeMode="NoResize">
     <Grid Margin="0,0,0,14" >
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="116*"/>
-            <ColumnDefinition Width="135*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Rectangle x:Name="LeftRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="103,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="93" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Left_Drop"/>
-        <Rectangle x:Name="RightRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="85,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="97" Grid.Column="1" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Right_Drop"/>
-        <Image HorizontalAlignment="Left" Height="94" Margin="201,40,0,0" VerticalAlignment="Top" Width="99" Grid.ColumnSpan="2"/>
-        <ListView x:Name="serverlist" ItemsSource="{Binding Path=List}" Margin="41,165,116,0" Grid.ColumnSpan="2" PreviewMouseLeftButtonDown="serverlist_PreviewMouseLeftButtonDown" PreviewMouseMove="serverlist_PreviewMouseMove">
+        <Rectangle x:Name="LeftRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="66,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="93" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Left_Drop"/>
+        <Rectangle x:Name="RightRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="42" Margin="0,67,60,0" Stroke="Black" VerticalAlignment="Top" Width="97" Grid.Column="1" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Right_Drop" RenderTransformOrigin="-0.237,0.714"/>
+        <Image Source="Resources/computer-screen-icon.png" HorizontalAlignment="Left" Height="94" Margin="203,35,0,0" VerticalAlignment="Top" Width="99" Grid.ColumnSpan="2"/>
+        <ListView x:Name="serverlist" ItemsSource="{Binding Path=List}" Margin="41,165,47,0" Grid.ColumnSpan="2" PreviewMouseLeftButtonDown="serverlist_PreviewMouseLeftButtonDown" PreviewMouseMove="serverlist_PreviewMouseMove" Height="90" VerticalAlignment="Top">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Nickname" DisplayMemberBinding="{Binding Path=Nickname}"/>
@@ -19,11 +19,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button x:Name="Addserver" Content="Add Server" HorizontalAlignment="Left" Margin="176,195,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.154,0.9" Height="20" Click="Add_Click" Grid.Column="1"/>
-        <Button x:Name="Right_Start" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="96,119,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="Button_Click_Right"/>
-        <Label x:Name="LeftLabel" Content="" HorizontalAlignment="Left" Margin="129,67,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="RightLabel" Content="" Grid.Column="1" HorizontalAlignment="Left" Margin="116,67,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="Left_Start" Content="Start" HorizontalAlignment="Left" Margin="112,119,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_Left"/>
+        <Button x:Name="Addserver" Content="Add Server" HorizontalAlignment="Left" Margin="214,267,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.154,0.9" Height="20" Click="Add_Click" Grid.ColumnSpan="2"/>
+        <Button x:Name="Right_Start" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="103,124,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="Button_Click_Right"/>
+        <Label Grid.Column="0" x:Name="LeftLabel" Content="" Margin="75,67,0,0" RenderTransformOrigin="-3.6,0.462" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" />
+        <Label x:Name="RightLabel" Content="" Grid.Column="1" HorizontalAlignment="Left" Margin="103,67,0,0" VerticalAlignment="Top" Height="26" />
+        <Button x:Name="Left_Start" Content="Start" HorizontalAlignment="Left" Margin="75,124,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_Left" Height="20"/>
 
     </Grid>
 </Window>

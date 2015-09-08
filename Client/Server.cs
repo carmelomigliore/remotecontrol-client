@@ -333,11 +333,12 @@ namespace Client
 
         public void Disconnect()
         {
+            Connected = false;
             if (_connection != null)
             {
                 _connection.Disconnect();
             }
-            Connected = false;
+            
         }
     }
 }
