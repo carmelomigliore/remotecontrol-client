@@ -68,5 +68,15 @@ namespace Client
         {
             this.Close();
         }
+
+        private void Window_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+        }
+
+        private void Window_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.None;
+        }
     }
 }

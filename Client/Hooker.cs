@@ -194,6 +194,7 @@ namespace Client
                     Win.Background = new BrushConverter().ConvertFrom("#00000000") as Brush;
                     Win.WindowState = WindowState.Maximized;
                     _currentServer.GetRemoteClipboard();
+                   // Mouse.OverrideCursor = Cursors.Arrow;
                     return (IntPtr)1;
                 }
                 else if (hookStruct.pt.x >= width && _capturing && _currentServer == LeftServer)
@@ -204,6 +205,7 @@ namespace Client
                     Win.Background = new BrushConverter().ConvertFrom("#00000000") as Brush;
                     Win.WindowState = WindowState.Maximized;
                     _currentServer.GetRemoteClipboard();
+                 //   Mouse.OverrideCursor = Cursors.Arrow;
                     return (IntPtr)1;
                 }
 

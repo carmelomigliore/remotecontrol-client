@@ -172,7 +172,7 @@ namespace Client
                 Connected = (bool)eventArgs.Result;
               //  Window.SetServer(this);
                if(!Connected)
-                   Window.AuthFailed();
+                   Window.AuthFailed(this);
                    
                 //TODO trayicon notification
                
@@ -251,7 +251,7 @@ namespace Client
                 Connected = false;
                 Window.Dispatcher.Invoke(new Action(() =>
                 {
-                    Window.AuthFailed();
+                    Window.AuthFailed(this);
                 }));
             }
         }
@@ -275,7 +275,7 @@ namespace Client
                 Connected = false;
                 Window.Dispatcher.Invoke(new Action(() =>
                 {
-                    Window.AuthFailed();
+                    Window.AuthFailed(this);
                 }));
             }
         }

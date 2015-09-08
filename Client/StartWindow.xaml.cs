@@ -30,7 +30,8 @@ namespace Client
         public Server RightServer { get; set; }
         public Server LeftServer { get; set; }
 
-        private bool _started = false;
+        private bool _right_started = false;
+        private bool _left_started = false;
 
         public Hooker Hook { get; set; }
         private Point startPosition;
@@ -129,43 +130,32 @@ namespace Client
                 {
                     Server server = e.Data.GetData("server") as Server;
                     LeftServer = server;
+                    LeftServer.PropertyChanged += ConnectionHandler;
                     LeftLabel.Content = server.Nickname;
                 }
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click_Right(object sender, RoutedEventArgs e)
         {
-            if (!_started)
+            if (!_right_started)
             {
-                mainWindow = new MainWindow();
-                mainWindow.Hook = Hook;
-                Hook.Win = mainWindow;
-                bool serverIsPresent = false;
+                if (mainWindow == null)
+                {
+                    mainWindow = new MainWindow();
+                    mainWindow.Hook = Hook;
+                    Hook.Win = mainWindow;
+                }
                 if (RightServer != null && !RightServer.Connected)
                 {
                     mainWindow.RightServer = RightServer;
                     mainWindow.RightServer.Window = this;
                     mainWindow.RightServer.ConnectAndLogin();
-                    serverIsPresent = true;
-                }
-
-                if (LeftServer != null && !LeftServer.Connected)
-                {
-                    mainWindow.LeftServer = LeftServer;
-                    mainWindow.LeftServer.Window = this;
-                    mainWindow.LeftServer.ConnectAndLogin();
-                    serverIsPresent = true;
-                }
-                if (serverIsPresent)
-                {
-                    mainWindow.SetHook();
-                    _started = true;
+                    _right_started = true;
                     Mouse.OverrideCursor = Cursors.Wait;
-                    Start.Content = "Stop";
-                    // this.Hide();
-                    //Prog.Show();
-                    //mainWindow.Show();
+                    Right_Start.Content = "Stop";
+                    if(!_left_started)
+                         mainWindow.SetHook();
                 }
             }
             else
@@ -173,28 +163,65 @@ namespace Client
                 if (RightServer != null)
                 {
                     RightServer.Disconnect();
-                    Start.Content = "Start";
-                    _started = false;
+                    Right_Start.Content = "Start";
+                    _right_started = false;
                     Mouse.OverrideCursor = Cursors.Arrow;
-                    Hook.UnHook();
+                    if (!_left_started)
+                    {
+                        Hook.UnHook();
+                        mainWindow = null;
+                    }
                 }
 
+            }
+        }
+
+        private void Button_Click_Left(object sender, RoutedEventArgs e)
+        {
+            if (!_left_started)
+            {
+                if (mainWindow == null)
+                {
+                    mainWindow = new MainWindow();
+                    mainWindow.Hook = Hook;
+                    Hook.Win = mainWindow;
+                }
+                if (LeftServer != null && !LeftServer.Connected)
+                {
+                    mainWindow.LeftServer = LeftServer;
+                    mainWindow.LeftServer.Window = this;
+                    mainWindow.LeftServer.ConnectAndLogin();
+                    _left_started = true;
+                    Mouse.OverrideCursor = Cursors.Wait;
+                    Left_Start.Content = "Stop";
+                    if (!_right_started)
+                        mainWindow.SetHook();
+                }
+            }
+            else
+            {
                 if (LeftServer != null)
                 {
                     LeftServer.Disconnect();
-                    Start.Content = "Start";
-                    _started = false;
+                    Left_Start.Content = "Start";
+                    _left_started = false;
                     Mouse.OverrideCursor = Cursors.Arrow;
-                    Hook.UnHook();
+                    if (!_right_started)
+                    {
+                        Hook.UnHook();
+                        mainWindow = null;
+                    }
                 }
+
             }
         }
 
         public void ConnectionHandler(object sender, PropertyChangedExtendedEventArgs<bool> args)
         {
+            Console.WriteLine("padreterno mannaggia");
             if (args.PropertyName == "connected")
             {
-
+                Console.WriteLine("ballone");
                 if (sender == RightServer)
                 {
                     if (args.NewValue)
@@ -217,8 +244,10 @@ namespace Client
                 }
                 else if (sender == LeftServer)
                 {
+                    Console.WriteLine("Bastardo del signoruzzo");
                     if (args.NewValue)
                     {
+                        Console.WriteLine("frocio di gesù");
                         Dispatcher.Invoke(new Action(() =>
                         {
                             LeftRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.LightGreen);
@@ -238,17 +267,66 @@ namespace Client
             }
         }
 
-        public void AuthFailed()
+
+        public void AuthFailed(Server sender)
         {
-            Dispatcher.Invoke(new Action(() =>
+            bool anotherServer = false;
+            if ((sender == RightServer && _left_started) || (sender == LeftServer && _right_started))
             {
-                MessageBox.Show("Authentication failed");
-                Hook.StopCapture();
-                mainWindow.Close();
-                this.Show();
-                Mouse.OverrideCursor = Cursors.Arrow;
-            }));
-            //this.Close();
+                anotherServer = true;
+            }
+            if (!anotherServer)
+            {
+                Dispatcher.Invoke(new Action(() =>
+                {
+               
+                        Hook.StopCapture();
+                    if (mainWindow != null)
+                    {
+                        mainWindow.Close();
+                    }
+                    this.Show();
+                        if ((RightServer == null || RightServer.Connected == false) &&
+                            (LeftServer == null || LeftServer.Connected == false))
+                        {
+                            Console.WriteLine("bastogne di gesuzzo");
+                            Mouse.OverrideCursor = Cursors.Arrow;
+                        }
+                        MessageBox.Show("Authentication failed");
+                    }));
+            }
+            if (sender == LeftServer)
+            {
+                 Left_Start.Content = "Start";
+                _left_started = false;
+                if (!_right_started)
+                {
+                    Mouse.OverrideCursor = Cursors.Arrow;
+                    Hook.UnHook();
+                    mainWindow = null;
+                }
+            }
+            else if (sender == RightServer)
+            {
+                 Right_Start.Content = "Start";
+                    _right_started = false;
+                    if (!_left_started)
+                    {
+                        Mouse.OverrideCursor = Cursors.Arrow;
+                        Hook.UnHook();
+                        mainWindow = null;
+                    }
+            }
+        }
+
+        private void Grid_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+        }
+
+        private void Grid_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.None;
         }
     }
 }
