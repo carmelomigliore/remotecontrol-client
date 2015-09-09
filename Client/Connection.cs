@@ -24,6 +24,7 @@ namespace Client
 
         public Connection(string ip, int port)
         {
+
             _ip = new IPEndPoint(IPAddress.Parse(ip), port);
             _udpClient = new UdpClient();
             
@@ -41,13 +42,16 @@ namespace Client
         {
             if (data != null)
             {
+                   Console.WriteLine("Mannaggia a John Travolta");
                     StreamWriter stream = new StreamWriter(_tcpClient.GetStream());
                     stream.WriteLine("2");
                     stream.Flush();
+                    Console.WriteLine("Mannaggia a R Kelly");
+                    byte [] dummy = new byte[1];
                     byte[] len = BitConverter.GetBytes(data.Length);
                     _tcpClient.GetStream().Write(len, 0, len.Length);
                     _tcpClient.GetStream().Write(data, 0, data.Length);
-                
+
             }
            
         }
@@ -56,10 +60,14 @@ namespace Client
         public Object GetClipboard()
         {
             StreamWriter stream = new StreamWriter(_tcpClient.GetStream());
+            Console.WriteLine("Mannaggia il cornuto di dio");
             stream.WriteLine("1");
+            Console.WriteLine("Mannaggia a Joseph smith");
             stream.Flush();
+            Console.WriteLine("Mannaggia a Ron Hubbard");
             byte [] len = new byte[sizeof(int)];
             _tcpClient.GetStream().Read(len, 0, sizeof (int));
+            Console.WriteLine("Mannaggia a Scientology");
             int length = BitConverter.ToInt32(len, 0);
             int read = 0;
             if (length <= 0)
@@ -67,7 +75,9 @@ namespace Client
             byte [] data = new byte[length];
             while (read < length)
             {
+                Console.WriteLine("Mannaggia a Tom Cruise");
                 read += _tcpClient.GetStream().Read(data, read, length - read);
+                Console.WriteLine("Mannaggia a chiesa cattolica");
             }
             using (var memStream = new MemoryStream())
             {

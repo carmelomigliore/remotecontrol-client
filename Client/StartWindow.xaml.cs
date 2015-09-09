@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Color = System.Windows.Media.Color;
 using Point = System.Windows.Point;
 
 namespace Client
@@ -59,7 +60,6 @@ namespace Client
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             AddServer addServer = new AddServer();
-            addServer.mainWindow = mainWindow;
             addServer.startWindow = this;
             addServer.Show();
         }
@@ -113,30 +113,33 @@ namespace Client
 
         private void Rectangle_Right_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent("server"))
+            if (e.Data.GetDataPresent("server") && !_right_started)
             {
                 Server server = e.Data.GetData("server") as Server;
-                RightServer = server;
-                RightServer.PropertyChanged += ConnectionHandler;
-                RightLabel.Content = server.Nickname;
-                Console.WriteLine("bastardo di cristino");
+                if ((RightServer == null || !server.Ip.Equals(RightServer.Ip)) && (LeftServer == null || !server.Ip.Equals(LeftServer.Ip)))
+                {
+                    RightServer = server;
+                    RightServer.PropertyChanged += ConnectionHandler;
+                    RightLabel.Text = server.Nickname;
+                    Console.WriteLine("bastardo di cristino");
+                }
             }
         }
 
 
         private void Rectangle_Left_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent("server"))
-            {
-                if (e.Data.GetDataPresent("server"))
+                if (e.Data.GetDataPresent("server") && !_left_started)
                 {
                     Server server = e.Data.GetData("server") as Server;
-                    LeftServer = server;
-                    LeftServer.PropertyChanged += ConnectionHandler;
-                    LeftLabel.Content = server.Nickname;
-                    Console.WriteLine("Bastardo di erick toir");
+                    if ((LeftServer == null || !server.Ip.Equals(LeftServer.Ip)) && (RightServer==null || !server.Ip.Equals(RightServer.Ip)))
+                    {
+                        LeftServer = server;
+                        LeftServer.PropertyChanged += ConnectionHandler;
+                        LeftLabel.Text = server.Nickname;
+                        Console.WriteLine("Bastardo di erick toir");
+                    }
                 }
-            }
         }
 
         private void Button_Click_Right(object sender, RoutedEventArgs e)
@@ -231,7 +234,7 @@ namespace Client
                     {
                         Dispatcher.Invoke(new Action(() =>
                         {
-                            RightRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.LightGreen);
+                            RightRectangle.Background = new SolidColorBrush(System.Windows.Media.Colors.LemonChiffon);
                           //  this.Hide();
                             mainWindow.Show();
                             Mouse.OverrideCursor = Cursors.None;
@@ -241,7 +244,7 @@ namespace Client
                     {
                         Dispatcher.Invoke(new Action(() =>
                         {
-                            RightRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.Black);
+                            RightRectangle.Background = new SolidColorBrush(Color.FromArgb(255, 244, 244, 245));
                         }));
                     }
                 }
@@ -253,7 +256,7 @@ namespace Client
                         Console.WriteLine("frocio di gesù");
                         Dispatcher.Invoke(new Action(() =>
                         {
-                            LeftRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.LightGreen);
+                            LeftRectangle.Background = new SolidColorBrush(System.Windows.Media.Colors.LemonChiffon);
                            // this.Hide();
                             mainWindow.Show();
                             Mouse.OverrideCursor = Cursors.None;
@@ -263,7 +266,7 @@ namespace Client
                     {
                         Dispatcher.Invoke(new Action(() =>
                         {
-                            LeftRectangle.Stroke = new SolidColorBrush(System.Windows.Media.Colors.Black);
+                            LeftRectangle.Background = new SolidColorBrush(Color.FromArgb(255, 244, 244, 245));
                         }));
                     }
                 }
@@ -295,7 +298,7 @@ namespace Client
                             Console.WriteLine("bastogne di gesuzzo");
                             Mouse.OverrideCursor = Cursors.Arrow;
                         }
-                        MessageBox.Show("Authentication failed");
+                        MessageBox.Show("Connection failed");
                     }));
             }
             if (sender == LeftServer)
@@ -330,6 +333,91 @@ namespace Client
         private void Grid_MouseLeave(object sender, MouseEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.None;
+            Console.WriteLine("diazzo di dio");
+        }
+
+        public void EditContextMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (serverlist.SelectedItem != null)
+            {
+                Server old = serverlist.SelectedItem as Server;
+                AddServer add = new AddServer();
+                add.ToModify = old;
+                add.Show();
+                add.startWindow = this;
+            }
+        }
+
+        public void RemoveContextMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (serverlist.SelectedItem != null)
+            {
+                List.Remove(serverlist.SelectedItem as Server);
+            }
+        }
+
+        private void serverlist_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (serverlist.SelectedItem == null)
+            {
+                EditContextMenu.IsEnabled = false;
+                RemoveontextMenu.IsEnabled = false;
+            }
+            else
+            {
+                EditContextMenu.IsEnabled = true;
+                RemoveontextMenu.IsEnabled = true;
+            }
+        }
+
+        private void serverlist_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+        }
+
+
+        private void RemoveLeftRectContextMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (LeftServer != null)
+            {
+                LeftServer = null;
+                LeftLabel.Text = "";
+            }
+        }
+
+        private void RemoveRightRectContextMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (RightServer != null)
+            {
+                RightServer = null;
+                RightLabel.Text = "";
+            }
+        }
+
+        private void LeftRectContextEnter(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+            if (LeftServer == null || _left_started)
+            {
+                RemoveFromRectLeft.IsEnabled = false;
+            }
+            else
+            {
+                RemoveFromRectLeft.IsEnabled = true;
+            }
+        }
+
+        private void RightRectContextEnter(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+            if (RightServer == null || _right_started)
+            {
+                RemoveFromRectRight.IsEnabled = false;
+            }
+            else
+            {
+                RemoveFromRectRight.IsEnabled = true;
+            }
         }
     }
 }

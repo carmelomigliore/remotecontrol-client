@@ -152,7 +152,7 @@ namespace Client
                         netResource,
                         Password,
                         Username,
-                        0x00000004 | 0x00000008 | 0x00000010 | 0x1000);
+                        0x00000004 | 0x00000008 | 0x1000);
 
                     if (result != 0)
                     {

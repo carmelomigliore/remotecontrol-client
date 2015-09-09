@@ -7,10 +7,34 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Rectangle x:Name="LeftRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="42" Margin="66,67,0,0" Stroke="Black" VerticalAlignment="Top" Width="93" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Left_Drop"/>
-        <Rectangle x:Name="RightRectangle" Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="42" Margin="0,67,60,0" Stroke="Black" VerticalAlignment="Top" Width="97" Grid.Column="1" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Right_Drop" RenderTransformOrigin="-0.237,0.714"/>
-        <Image Source="Resources/computer-screen-icon.png" HorizontalAlignment="Left" Height="94" Margin="203,35,0,0" VerticalAlignment="Top" Width="99" Grid.ColumnSpan="2"/>
-        <ListView x:Name="serverlist" ItemsSource="{Binding Path=List}" Margin="41,165,47,0" Grid.ColumnSpan="2" PreviewMouseLeftButtonDown="serverlist_PreviewMouseLeftButtonDown" PreviewMouseMove="serverlist_PreviewMouseMove" Height="90" VerticalAlignment="Top">
+        <Border x:Name="LeftRectangle" CornerRadius="3"  Background="#FFF4F4F5" Margin="0,0,80,190" BorderThickness="5" BorderBrush="#FF4F6881"  Height="69" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="101" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Left_Drop">
+                <FrameworkElement.ContextMenu>
+                <ContextMenu StaysOpen="true" Background="WhiteSmoke"  MouseEnter="LeftRectContextEnter">
+                    <MenuItem Header="Remove" x:Name="RemoveFromRectLeft"  Click="RemoveLeftRectContextMenu_OnClick"/>
+                 </ContextMenu>
+            </FrameworkElement.ContextMenu>
+            <TextBlock x:Name="LeftLabel" TextWrapping="Wrap" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        </Border>
+        <Border x:Name="RightRectangle" CornerRadius="3" Background="#FFF4F4F5" Margin="92,0,0,190" BorderThickness="5" BorderBrush="#FF4F6881" Grid.Column="1"  RenderTransformOrigin="-0.237,0.714" Height="69" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="101" AllowDrop="True" DragEnter="Rectangle_DragEnter" Drop="Rectangle_Right_Drop">
+            <FrameworkElement.ContextMenu>
+                <ContextMenu StaysOpen="true" Background="WhiteSmoke" MouseEnter="RightRectContextEnter">
+                    <MenuItem Header="Remove" x:Name="RemoveFromRectRight"  Click="RemoveRightRectContextMenu_OnClick"/>
+                </ContextMenu>
+            </FrameworkElement.ContextMenu>
+            <TextBlock x:Name="RightLabel" TextWrapping="Wrap" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        </Border>
+        <Image Source="Resources/computer-screen-icon.png" HorizontalAlignment="Left" Height="99" Margin="203,23,0,0" VerticalAlignment="Top" Width="99" Grid.ColumnSpan="2"/>
+        <ListView x:Name="serverlist" ItemsSource="{Binding Path=List}" Margin="41,165,47,0" Grid.ColumnSpan="2" PreviewMouseLeftButtonDown="serverlist_PreviewMouseLeftButtonDown" PreviewMouseMove="serverlist_PreviewMouseMove" Height="90" VerticalAlignment="Top" ContextMenuOpening="serverlist_ContextMenuOpening" >
+            <ListView.ContextMenu>
+                <ContextMenu Name="ZoneIformationList" StaysOpen="true" Background="WhiteSmoke" MouseEnter="serverlist_MouseEnter">
+                    <ContextMenu.BitmapEffect>
+                        <BitmapEffectGroup/>
+                    </ContextMenu.BitmapEffect>
+                    <MenuItem Header="Edit" x:Name="EditContextMenu"  Click="EditContextMenu_OnClick"/>
+                    <MenuItem Header="Remove" x:Name="RemoveontextMenu" Click="RemoveContextMenu_OnClick"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Nickname" DisplayMemberBinding="{Binding Path=Nickname}"/>
@@ -20,10 +44,8 @@
             </ListView.View>
         </ListView>
         <Button x:Name="Addserver" Content="Add Server" HorizontalAlignment="Left" Margin="214,267,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.154,0.9" Height="20" Click="Add_Click" Grid.ColumnSpan="2"/>
-        <Button x:Name="Right_Start" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="103,124,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="Button_Click_Right"/>
-        <Label Grid.Column="0" x:Name="LeftLabel" Content="" Margin="75,67,0,0" RenderTransformOrigin="-3.6,0.462" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" />
-        <Label x:Name="RightLabel" Content="" Grid.Column="1" HorizontalAlignment="Left" Margin="103,67,0,0" VerticalAlignment="Top" Height="26" />
-        <Button x:Name="Left_Start" Content="Start" HorizontalAlignment="Left" Margin="75,124,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_Left" Height="20"/>
+        <Button x:Name="Right_Start" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="107,114,0,0" Width="75" Click="Button_Click_Right" Height="20" VerticalAlignment="Top"/>
+        <Button x:Name="Left_Start" Content="Start" HorizontalAlignment="Right" Margin="0,114,95,0" Width="75" Click="Button_Click_Left" Height="20" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

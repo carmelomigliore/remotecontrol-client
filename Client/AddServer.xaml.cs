@@ -20,8 +20,8 @@ namespace Client
     /// </summary>
     public partial class AddServer : Window
     {
-        public MainWindow mainWindow { get; set; }
         public StartWindow startWindow { get; set; }
+        public Server ToModify { get; set; }
 
         public AddServer()
         {
@@ -40,6 +40,10 @@ namespace Client
                 Server s = new Server(this.ip.Text, Int32.Parse(this.port.Text), this.user.Text, "WORKGROUP",
                     this.password.Password);
                 s.Nickname = this.nick.Text;
+                if (ToModify != null)
+                {
+                    startWindow.List.Remove(ToModify);
+                }
                 startWindow.List.Add(s);
                 this.Close();
             }
@@ -77,6 +81,17 @@ namespace Client
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.None;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (ToModify != null)
+            {
+                ip.Text = ToModify.Ip;
+                nick.Text = ToModify.Nickname;
+                port.Text = ToModify.Port.ToString();
+                user.Text = ToModify.Username;
+            }
         }
     }
 }
